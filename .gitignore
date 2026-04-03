@@ -1,0 +1,10 @@
+node_modules
+.next
+.vercel
+*.log
+.env.local
+.next
+.vercel
+.firebase
+node_modules
+out
