@@ -33,7 +33,7 @@ export default function SerialPlotter({ onBack }: SerialPlotterProps) {
     let buffer = "";
     while (portRef.current && portRef.current.readable) {
       const reader = portRef.current.readable.getReader();
-    readerRef.current = reader;
+      readerRef.current = reader;
       try {
         while (true) {
           const { value, done } = await reader.read();
@@ -42,16 +42,16 @@ export default function SerialPlotter({ onBack }: SerialPlotterProps) {
           const lines = buffer.split("\n");
           buffer = lines.pop() || "";
           
-        for (const line of lines) {
-          const num = parseFloat(line.trim());
-          if (!isNaN(num)) {
-            dataPoints.current.push(num);
-            if (dataPoints.current.length > 100) dataPoints.current.shift();
-            drawPlot();
+          for (const line of lines) {
+            const num = parseFloat(line.trim());
+            if (!isNaN(num)) {
+              dataPoints.current.push(num);
+              if (dataPoints.current.length > 100) dataPoints.current.shift();
+              drawPlot();
+            }
           }
         }
-      }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error(err);
       } finally {
         reader.releaseLock();
@@ -86,7 +86,7 @@ export default function SerialPlotter({ onBack }: SerialPlotterProps) {
     const min = Math.min(...dataPoints.current, 0);
     const range = max - min || 1;
 
-    dataPoints.current.forEach((val, i) => {
+    dataPoints.current.forEach((val: number, i: number) => {
       const x = (i / (dataPoints.current.length - 1)) * width;
       const y = height - ((val - min) / range) * height;
       if (i === 0) ctx.moveTo(x, y);
@@ -128,7 +128,7 @@ export default function SerialPlotter({ onBack }: SerialPlotterProps) {
             className="baud-select" 
             value={baudRate}
             aria-label="Baud hızı"
-            onChange={(e) => setBaudRate(Number(e.target.value))}
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setBaudRate(Number(e.target.value))}
             disabled={isConnected}
           >
             <option value="1200">1200</option>
@@ -146,10 +146,16 @@ export default function SerialPlotter({ onBack }: SerialPlotterProps) {
           className="command-input" 
           placeholder="Komut gönder..." 
           value={command}
-          onChange={(e) => setCommand(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCommand(e.target.value)}
         />
         <button className="btn-send" onClick={() => setCommand("")} disabled={!isConnected}>Gönder</button>
-        <button className="btn-clear btn-download" onClick={() => dataPoints.current = []}>Temizle</button>
+        <button 
+          className="btn-clear btn-download" 
+          onClick={() => { 
+            dataPoints.current = []; 
+            drawPlot(); 
+          }}
+        >Temizle</button>
       </div>
     </div>
   );
