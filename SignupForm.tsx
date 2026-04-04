@@ -1,33 +1,42 @@
 import React, { useState } from 'react';
 
-interface LoginFormProps {
-  onLogin: (email: string, password: string, rememberMe: boolean) => void;
-  onSwitchToSignup: () => void;
+interface SignupFormProps {
+  onSignup: (email: string, password: string, displayName: string) => void;
+  onSwitchToLogin: () => void;
   error: string;
 }
 
-export default function LoginForm({ onLogin, onSwitchToSignup, error }: LoginFormProps) {
+export default function SignupForm({ onSignup, onSwitchToLogin, error }: SignupFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(email, password, rememberMe);
+    onSignup(email, password, displayName);
   };
 
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1>Robotik Mühendisliği Projeleri</h1>
+        <h1>Yeni Hesap Oluştur</h1>
         <form onSubmit={handleSubmit}>
+          <input 
+            type="text" 
+            placeholder="Adınız Soyadınız" 
+            className="login-input"
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            required
+          />
           <input 
             type="email" 
             placeholder="E-posta" 
             className="login-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <div className="password-wrapper">
             <input 
@@ -36,6 +45,7 @@ export default function LoginForm({ onLogin, onSwitchToSignup, error }: LoginFor
               className="login-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
             />
             <button 
               type="button" 
@@ -45,22 +55,10 @@ export default function LoginForm({ onLogin, onSwitchToSignup, error }: LoginFor
               {showPassword ? "👁️‍🗨️" : "👁️"}
             </button>
           </div>
-          <div className="remember-me-container">
-            <input 
-              type="checkbox" 
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="rememberMe">Beni Hatırla</label>
-          </div>
-          <button type="submit" className="btn-login">Giriş Yap</button>
+          <button type="submit" className="btn-login">Kayıt Ol</button>
         </form>
-        <a className="forgot-password" onClick={() => alert('Yöneticiyle iletişime geçin.')}>
-          Şifremi Unuttum
-        </a>
-        <a className="forgot-password" style={{ marginTop: '5px' }} onClick={onSwitchToSignup}>
-          Hesabın yok mu? Yeni hesap oluştur
+        <a className="forgot-password" onClick={onSwitchToLogin}>
+          Zaten hesabın var mı? Giriş Yap
         </a>
         {error && <p className="error-message">{error}</p>}
       </div>

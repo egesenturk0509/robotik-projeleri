@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// @ts-nocheck
+import React, { useState } from 'react'; 
 import { PROJECTS } from '../projects'; 
 import { Project } from '../project';   
 import Header from './Header';

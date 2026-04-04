@@ -35,13 +35,10 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
 
   return (
     <div>
-      <Header onLogout={onLogout} />
+      <Header displayName={"Ege Senturk"} onOpenAccount={() => {}} />
       <div className="container">
         {view === 'grid' ? (
-          <ProjectGrid 
-            projects={PROJECTS} 
-            onSelect={handleProjectSelect} 
-          />
+          <ProjectGrid projects={PROJECTS} onSelect={handleProjectSelect} onOpenSerial={() => {}} />
         ) : (
           selectedProject && (
             <ProjectDetail 
