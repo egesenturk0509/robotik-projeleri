@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import LoginForm from '../LoginForm';
 import ManagementContent from './ManagementContent';
+import { auth } from './firebase';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, User } from 'firebase/auth';
 
 // --- ANA SAYFA (Main Page) ---
 
@@ -11,21 +13,24 @@ export default function RobotikProje() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const savedLogin = localStorage.getItem('isLoggedIn');
-    if (savedLogin === 'true') { setIsLoggedIn(true); }
+    const unsubscribe = onAuthStateChanged(auth, (user: User | null) => {
+      setIsLoggedIn(!!user);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const handleLogin = (username: string, password: string, rememberMe: boolean) => {
-    if (username === 'ege.senturk' && password === 'ege052014') {
-      setIsLoggedIn(true);
-      if (rememberMe) { localStorage.setItem('isLoggedIn', 'true'); }
+  const handleLogin = async (email: string, password: string, rememberMe: boolean) => {
+    try {
+      await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+      await signInWithEmailAndPassword(auth, email, password);
       setError('');
-    } else { setError('Hatalı kullanıcı adı veya şifre!'); }
+    } catch (err) {
+      setError('Hatalı e-posta veya şifre!');
+    }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('isLoggedIn');
+    signOut(auth);
   };
 
   if (!isLoggedIn) {

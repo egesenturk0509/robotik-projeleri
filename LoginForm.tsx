@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 
 interface LoginFormProps {
-  onLogin: (username: string, password: string, rememberMe: boolean) => void;
+  onLogin: (email: string, password: string, rememberMe: boolean) => void;
   error: string;
 }
 
 export default function LoginForm({ onLogin, error }: LoginFormProps) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(username, password, rememberMe);
+    onLogin(email, password, rememberMe);
   };
 
   return (
@@ -22,11 +22,11 @@ export default function LoginForm({ onLogin, error }: LoginFormProps) {
         <h1>Robotik Mühendisliği Projeleri</h1>
         <form onSubmit={handleSubmit}>
           <input 
-            type="text" 
-            placeholder="Kullanıcı Adı" 
+            type="email" 
+            placeholder="E-posta" 
             className="login-input"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <div className="password-wrapper">
             <input 

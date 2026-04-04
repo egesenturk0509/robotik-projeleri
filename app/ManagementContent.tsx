@@ -18,8 +18,9 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
   const [emailInput, setEmailInput] = useState('');
   const [showEmailForm, setShowEmailInput] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  
   const [userData, setUserData] = useState({
-    username: 'ege.senturk',
+    email: 'egesenturk0509@gmail.com',
     displayName: 'Ege Şentürk'
   });
 
@@ -45,8 +46,11 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
     setView('plotter');
   };
 
-  const handleSaveAccount = (newData: { username: string; password?: string; displayName: string }) => {
-    setUserData({ username: newData.username, displayName: newData.displayName });
+  const handleSaveAccount = (newData: { email: string; password?: string; displayName: string }) => {
+    setUserData({ 
+      email: newData.email, 
+      displayName: newData.displayName 
+    });
   };
 
   const downloadFile = (filename: string, content: string) => {
@@ -59,28 +63,24 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
     document.body.removeChild(element);
   };
 
-  // --- E-POSTA GÖNDERME FONKSİYONU ---
   const handleConfirmSendEmail = async () => {
     if (!emailInput || !selectedProject) return;
-
     setIsSending(true);
-
     try {
       const res = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: emailInput, projectName: selectedProject.title }),
       });
-
       if (res.ok) {
         alert("Proje detayları başarıyla uçuruldu! 🕊️");
         setShowEmailInput(false);
         setEmailInput('');
       } else {
-        alert("Bir hata oluştu. API Key'i Vercel'e eklediğinden emin misin? 🦜");
+        alert("Bir hata oluştu! 🦜");
       }
     } catch (error) {
-      alert("Bağlantı hatası oluştu!");
+      alert("Bağlantı hatası!");
     } finally {
       setIsSending(false);
     }

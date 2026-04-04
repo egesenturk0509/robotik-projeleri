@@ -4,20 +4,20 @@ interface AccountSettingsProps {
   onBack: () => void;
   onLogout: () => void;
   userData: {
-    username: string;
+    email: string;
     displayName: string;
   };
-  onSave: (newData: { username: string; password?: string; displayName: string }) => void;
+  onSave: (newData: { email: string; password?: string; displayName: string }) => void;
 }
 
 export default function AccountSettings({ onBack, onLogout, userData, onSave }: AccountSettingsProps) {
-  const [username, setUsername] = useState(userData.username);
+  const [email, setEmail] = useState(userData.email);
   const [displayName, setDisplayName] = useState(userData.displayName);
   const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({ username, displayName, password: password || undefined });
+    onSave({ email, displayName, password: password || undefined });
     alert('Bilgiler başarıyla güncellendi!');
   };
 
@@ -43,17 +43,17 @@ export default function AccountSettings({ onBack, onLogout, userData, onSave }: 
         </div>
 
         <div className="form-group">
-          <label htmlFor="username" className="form-label">
-            Kullanıcı Adı
+          <label htmlFor="email" className="form-label">
+            E-posta
           </label>
           <input 
-            id="username"
-            type="text" 
+            id="email"
+            type="email" 
             className="login-input" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
             required
-            placeholder="Kullanıcı adınızı giriniz"
+            placeholder="E-posta adresinizi giriniz"
           />
         </div>
 

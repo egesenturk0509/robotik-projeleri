@@ -1,13 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // TypeScript hataları olsa bile projeyi yayına al!
-    ignoreBuildErrors: true, 
-  },
-  eslint: {
-    // ESLint hatalarını da görmezden gel
-    ignoreDuringBuilds: true,
-  },
-}
+  output: 'export', // EN KRİTİK SATIR BURASI!
+  images: {
+    unoptimized: true, // Statik sitede resimlerin çalışması için şart
+  }
+};
 
-module.exports = nextConfig
+export default nextConfig;
