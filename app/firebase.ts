@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, OAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   // Buraya Firebase Console -> Proje Ayarları -> SDK Kurulumu kısmındaki bilgileri yapıştır
@@ -13,3 +13,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
+export const githubProvider = new GithubAuthProvider();
+export const appleProvider = new OAuthProvider('apple.com');
+export const microsoftProvider = new OAuthProvider('microsoft.com');

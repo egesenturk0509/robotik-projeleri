@@ -77,6 +77,25 @@ export default function RootLayout({
           .login-input { width: 100%; padding: 12px 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 1em; box-sizing: border-box; }
           .btn-login { width: 100%; background-color: #0078d7; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
           .btn-login:hover { background-color: #005a9e; }
+          
+          .btn-social { width: 100%; background-color: white; color: #757575; border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+          .btn-social:hover { background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          
+          /* Özel Sosyal Buton Renkleri (isteğe bağlı) */
+          .btn-google { border-color: #db4437; color: #db4437; }
+          .btn-google:hover { background-color: #fce8e6; }
+          .btn-github { border-color: #333; color: #333; }
+          .btn-github:hover { background-color: #f5f5f5; }
+          .btn-apple { border-color: #000; color: #000; }
+          .btn-apple:hover { background-color: #f5f5f5; }
+          .btn-microsoft { border-color: #2f2f2f; color: #2f2f2f; } /* Microsoft'un resmi rengi yok, koyu gri kullanıldı */
+          .btn-microsoft:hover { background-color: #f5f5f5; }
+
+          .google-login-separator { margin: 15px 0; position: relative; text-align: center; }
+          .google-login-separator::before { content: ""; position: absolute; top: 50%; left: 0; width: 40%; border-top: 1px solid #ddd; }
+          .google-login-separator::after { content: ""; position: absolute; top: 50%; right: 0; width: 40%; border-top: 1px solid #ddd; }
+          .google-login-separator span { color: #888; font-size: 0.85em; background: white; padding: 0 10px; }
+
           .password-wrapper { position: relative; }
           .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.2em; }
           .remember-me-container { display: flex; align-items: center; gap: 8px; margin-top: 15px; text-align: left; }

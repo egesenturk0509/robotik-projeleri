@@ -2,11 +2,23 @@ import React, { useState } from 'react';
 
 interface SignupFormProps {
   onSignup: (email: string, password: string, displayName: string) => void;
+  onGoogleLogin: () => void;
+  onGithubLogin: () => void;
+  onAppleLogin: () => void;
+  onMicrosoftLogin: () => void;
   onSwitchToLogin: () => void;
   error: string;
 }
 
-export default function SignupForm({ onSignup, onSwitchToLogin, error }: SignupFormProps) {
+export default function SignupForm({ 
+  onSignup, 
+  onGoogleLogin, 
+  onGithubLogin, 
+  onAppleLogin, 
+  onMicrosoftLogin, 
+  onSwitchToLogin, 
+  error 
+}: SignupFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -56,6 +68,30 @@ export default function SignupForm({ onSignup, onSwitchToLogin, error }: SignupF
             </button>
           </div>
           <button type="submit" className="btn-login">Kayıt Ol</button>
+
+          <div className="google-login-separator">
+            <span>veya</span>
+          </div>
+
+          <button type="button" className="btn-social btn-google" onClick={onGoogleLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
+            Google ile Kayıt Ol
+          </button>
+
+          <button type="button" className="btn-social btn-github" onClick={onGithubLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/github.svg" alt="GitHub" width="18" height="18" />
+            GitHub ile Kayıt Ol
+          </button>
+
+          <button type="button" className="btn-social btn-apple" onClick={onAppleLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/apple.svg" alt="Apple" width="18" height="18" />
+            Apple ile Kayıt Ol
+          </button>
+
+          <button type="button" className="btn-social btn-microsoft" onClick={onMicrosoftLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/microsoft.svg" alt="Microsoft" width="18" height="18" />
+            Microsoft ile Kayıt Ol
+          </button>
         </form>
         <a className="forgot-password" onClick={onSwitchToLogin}>
           Zaten hesabın var mı? Giriş Yap

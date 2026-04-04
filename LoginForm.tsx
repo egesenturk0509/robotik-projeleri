@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 
 interface LoginFormProps {
   onLogin: (email: string, password: string, rememberMe: boolean) => void;
+  onGoogleLogin: () => void;
+  onGithubLogin: () => void;
+  onAppleLogin: () => void;
+  onMicrosoftLogin: () => void;
   onSwitchToSignup: () => void;
   error: string;
 }
 
-export default function LoginForm({ onLogin, onSwitchToSignup, error }: LoginFormProps) {
+export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onAppleLogin, onMicrosoftLogin, onSwitchToSignup, error }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -55,6 +59,33 @@ export default function LoginForm({ onLogin, onSwitchToSignup, error }: LoginFor
             <label htmlFor="rememberMe">Beni Hatırla</label>
           </div>
           <button type="submit" className="btn-login">Giriş Yap</button>
+          
+          <div className="google-login-separator">
+            <span>veya</span>
+          </div>
+          
+          <button type="button" className="btn-google" onClick={onGoogleLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
+            Google ile Giriş Yap
+          </button>
+
+          <button type="button" className="btn-social btn-github" onClick={onGithubLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/github.svg" alt="GitHub" width="18" height="18" />
+            GitHub ile Giriş Yap
+          </button>
+
+          <button type="button" className="btn-social btn-apple" onClick={onAppleLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/apple.svg" alt="Apple" width="18" height="18" />
+            Apple ile Giriş Yap
+          </button>
+
+          <button type="button" className="btn-social btn-microsoft" onClick={onMicrosoftLogin}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/microsoft.svg" alt="Microsoft" width="18" height="18" />
+            Microsoft ile Giriş Yap
+          </button>
+
+
+
         </form>
         <a className="forgot-password" onClick={() => alert('Yöneticiyle iletişime geçin.')}>
           Şifremi Unuttum
