@@ -7,7 +7,7 @@ interface SignupFormProps {
   onAppleLogin: () => void;
   onMicrosoftLogin: () => void;
   onSwitchToLogin: () => void;
-  error: string;
+  error: React.ReactNode;
 }
 
 export default function SignupForm({ 
