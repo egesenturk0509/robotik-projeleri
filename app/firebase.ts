@@ -1,4 +1,5 @@
 import { initializeApp } from "firebase/app";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { getAuth, GoogleAuthProvider, GithubAuthProvider, TwitterAuthProvider, FacebookAuthProvider, OAuthProvider, EmailAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
@@ -11,6 +12,14 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+if (typeof window !== "undefined") {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider('6Lfm9NcqAAAAAK_6_Id6lvaxOf_6lvaxOf_6lvax'), // Buraya kendi site key'ini yazdığından emin ol
+    isTokenAutoRefreshEnabled: true
+  });
+}
+
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const githubProvider = new GithubAuthProvider();

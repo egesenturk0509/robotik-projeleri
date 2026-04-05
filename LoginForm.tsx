@@ -96,6 +96,12 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwi
             />
             <label htmlFor="rememberMe">Beni Hatırla</label>
           </div>
+
+          {/* reCAPTCHA Alanı */}
+          <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center' }}>
+            <div id="recaptcha-container"></div>
+          </div>
+
           <button type="submit" className="btn-login" disabled={isLoading}> {/* Yüklenirken düğmeyi devre dışı bırak */}
             {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"} {/* Metni değiştir */}
           </button>

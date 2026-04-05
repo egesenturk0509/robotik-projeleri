@@ -77,6 +77,12 @@ export default function SignupForm({
               {showPassword ? "👁️‍🗨️" : "👁️"}
             </button>
           </div>
+
+          {/* reCAPTCHA Alanı */}
+          <div style={{ marginTop: '15px', display: 'flex', justifyContent: 'center' }}>
+            <div id="recaptcha-container"></div>
+          </div>
+
           <button type="submit" className="btn-login" disabled={isLoading}> {/* Yüklenirken düğmeyi devre dışı bırak */}
             {isLoading ? "Kayıt Olunuyor..." : "Kayıt Ol"} {/* Metni değiştir */}
           </button>

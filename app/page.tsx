@@ -22,7 +22,9 @@ import {
 
 export default function HomePage() {
   const [error, setError] = useState<React.ReactNode>('');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null: kontrol ediliyor
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [showStaySignedIn, setShowStaySignedIn] = useState(false);
+  const [pendingUser, setPendingUser] = useState<any>(null);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isLoading, setIsLoading] = useState(false);
@@ -50,10 +52,21 @@ export default function HomePage() {
       }
       setError('');
     } catch (err: any) {
-      setError('E-posta adresi veya şifre hatalı!');
+      if (err.code === 'auth/invalid-credential') {
+        setError('E-posta adresi veya şifre hatalı!');
+      } else {
+        setError('Giriş yapılırken bir hata oluştu.');
+      }
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleStaySignedInChoice = async (stay: boolean) => {
+    await setPersistence(auth, stay ? browserLocalPersistence : browserSessionPersistence);
+    setIsLoggedIn(true);
+    setShowStaySignedIn(false);
+    setPendingUser(null);
   };
 
   const handleEmailSignup = async (email: string, password: string, displayName: string) => {
@@ -76,14 +89,16 @@ export default function HomePage() {
 
   const handleSocialAuth = async (provider: any, providerName: string) => {
     setIsLoading(true);
+    setError('');
     try {
-      await setPersistence(auth, browserLocalPersistence);
-      await signInWithPopup(auth, provider);
-      setError('');
+      const result = await signInWithPopup(auth, provider);
+      // Giriş başarılı, şimdi Microsoft gibi soralım
+      setPendingUser(result.user);
+      setShowStaySignedIn(true);
     } catch (err: any) {
       if (err.code === 'auth/account-exists-with-different-credential') {
         setPendingCredential(err.credential);
-        setError(`Bu e-posta adresi başka bir yöntemle kayıtlı. Güvenliğiniz için mevcut hesabınızla giriş yapın; ${providerName} hesabınız bu hesaba otomatik eklenecektir.`);
+        setError(`Bu e-posta (${err.customData?.email}) başka bir yöntemle kayıtlı. Lütfen şifrenizle giriş yapın, hesabınız otomatik birleştirilecektir.`);
         setAuthMode('login');
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError('Giriş penceresi kapatıldı.');
@@ -138,6 +153,27 @@ export default function HomePage() {
   if (isLoggedIn === null) return null; // Yüklenme anında boş sayfa göster
 
   if (isLoggedIn) {
+    if (showStaySignedIn) {
+      return (
+        <div className="login-container">
+          <div className="login-card" style={{ maxWidth: '450px' }}>
+            <img src="https://www.gstatic.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png" alt="Logo" style={{ height: '30px', marginBottom: '20px' }} />
+            <h2 style={{ textAlign: 'left', fontSize: '1.5em', marginBottom: '10px' }}>Oturum açık kalsın mı?</h2>
+            <p style={{ textAlign: 'left', color: '#666', fontSize: '0.95em', marginBottom: '20px' }}>
+              Bunu, her zaman oturum açmak zorunda kalmamak için yapın.
+            </p>
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '30px' }}>
+              <button className="btn-modal-cancel" style={{ flex: 'none', width: '100px' }} onClick={() => handleStaySignedInChoice(false)}>Hayır</button>
+              <button className="btn-login" style={{ flex: 'none', width: '100px', marginTop: 0 }} onClick={() => handleStaySignedInChoice(true)}>Evet</button>
+            </div>
+            <div style={{ textAlign: 'left', marginTop: '20px' }}>
+              <input type="checkbox" id="dontShowAgain" />
+              <label htmlFor="dontShowAgain" style={{ fontSize: '0.85em', marginLeft: '5px' }}>Bunu bir daha gösterme</label>
+            </div>
+          </div>
+        </div>
+      );
+    }
     if (needsVerification) {
       return (
         <div className="login-container">
