@@ -8,15 +8,17 @@ interface LoginFormProps {
   onFacebookLogin: () => void;
   onYahooLogin: () => void;
   onSwitchToSignup: () => void;
+  onForgotPassword: (email: string) => void;
   error: React.ReactNode;
   isLoading: boolean; // Yeni prop
 }
 
-export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwitterLogin, onFacebookLogin, onYahooLogin, onSwitchToSignup, error, isLoading }: LoginFormProps) {
+export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwitterLogin, onFacebookLogin, onYahooLogin, onSwitchToSignup, onForgotPassword, error, isLoading }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isResetMode, setIsResetMode] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,6 +26,34 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwi
       onLogin(email, password, rememberMe);
     }
   };
+
+  if (isResetMode) {
+    return (
+      <div className="login-container">
+        <div className="login-card">
+          <h1>Şifremi Unuttum</h1>
+          <p style={{ fontSize: '0.9em', color: '#666', marginBottom: '20px' }}>
+            E-posta adresinizi girin, size şifre sıfırlama bağlantısı gönderelim.
+          </p>
+          <input 
+            type="email" 
+            placeholder="E-posta adresiniz" 
+            className="login-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+          />
+          <button className="btn-login" onClick={() => onForgotPassword(email)} disabled={isLoading || !email}>
+            {isLoading ? "Gönderiliyor..." : "Mail Gönder"}
+          </button>
+          <a className="forgot-password" style={{ marginTop: '15px' }} onClick={() => setIsResetMode(false)}>
+            Geri Dön
+          </a>
+          {error && <p className="error-message">{error}</p>}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-container">
@@ -96,7 +126,7 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwi
             Yahoo ile Giriş Yap
           </button>
         </form>
-        <a className="forgot-password" onClick={() => alert('Yöneticiyle iletişime geçin.')}>
+        <a className="forgot-password" onClick={() => setIsResetMode(true)}>
           Şifremi Unuttum
         </a>
         <a className="forgot-password" style={{ marginTop: '5px' }} onClick={onSwitchToSignup}>

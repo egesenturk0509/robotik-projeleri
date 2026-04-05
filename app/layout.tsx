@@ -93,6 +93,10 @@ export default function RootLayout({
           .btn-facebook:hover { background-color: #f0f7ff; }
           .btn-yahoo { border-color: #6001d2; color: #6001d2; }
           .btn-yahoo:hover { background-color: #f9f4ff; }
+          .btn-facebook { border-color: #1877F2; color: #1877F2; }
+          .btn-facebook:hover { background-color: #f0f7ff; }
+          .btn-yahoo { border-color: #6001d2; color: #6001d2; }
+          .btn-yahoo:hover { background-color: #f9f4ff; }
 
           .google-login-separator { margin: 15px 0; position: relative; text-align: center; }
           .google-login-separator::before { content: ""; position: absolute; top: 50%; left: 0; width: 40%; border-top: 1px solid #ddd; }
