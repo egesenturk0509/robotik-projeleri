@@ -78,16 +78,21 @@ export default function RootLayout({
           .btn-login { width: 100%; background-color: #0078d7; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
           .btn-login:hover { background-color: #005a9e; }
           
-          .btn-social { width: 100%; background-color: white; color: #757575; border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
-          .btn-social:hover { background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .btn-social { width: 100%; background-color: white; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; border: 1px solid #e0e0e0; font-size: 0.95em; }
+          .btn-social:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); background-color: #ffffff; }
+          .btn-social img { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
           
-          /* Özel Sosyal Buton Renkleri (isteğe bağlı) */
-          .btn-google { border-color: #db4437; color: #db4437; }
-          .btn-google:hover { background-color: #fce8e6; }
-          .btn-github { border-color: #333; color: #333; }
-          .btn-github:hover { background-color: #f5f5f5; }
-          .btn-x { border-color: #000; color: #000; }
-          .btn-x:hover { background-color: #f5f5f5; }
+          /* Marka Renkleri ve Hover Efektleri */
+          .btn-google { border-color: #ea4335; color: #ea4335; }
+          .btn-google:hover { background-color: #fff8f7; border-color: #ea4335; }
+          .btn-github { border-color: #24292e; color: #24292e; }
+          .btn-github:hover { background-color: #f6f8fa; }
+          .btn-x { border-color: #000000; color: #000000; }
+          .btn-x:hover { background-color: #f2f2f2; }
+          .btn-facebook { border-color: #1877F2; color: #1877F2; }
+          .btn-facebook:hover { background-color: #f0f7ff; }
+          .btn-yahoo { border-color: #6001d2; color: #6001d2; }
+          .btn-yahoo:hover { background-color: #f9f4ff; }
 
           .google-login-separator { margin: 15px 0; position: relative; text-align: center; }
           .google-login-separator::before { content: ""; position: absolute; top: 50%; left: 0; width: 40%; border-top: 1px solid #ddd; }
