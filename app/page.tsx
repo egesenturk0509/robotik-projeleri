@@ -25,19 +25,22 @@ export default function HomePage() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [showStaySignedIn, setShowStaySignedIn] = useState(false);
   const [pendingUser, setPendingUser] = useState<any>(null);
+  const [isDecisionPending, setIsDecisionPending] = useState(false);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isLoading, setIsLoading] = useState(false);
   const [pendingCredential, setPendingCredential] = useState<AuthCredential | null>(null);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
-      setNeedsVerification(!!user && !user.emailVerified);
+      if (user && !isDecisionPending) {
+        setIsLoggedIn(true);
+        setNeedsVerification(!user.emailVerified);
+      } else if (!user) {
+        setIsLoggedIn(false);
+      }
     });
     return () => unsubscribe();
-  }, []);
-
+  }, [isDecisionPending]);
   const handleLogin = async (email: string, password: string, rememberMe: boolean) => {
     setIsLoading(true);
     try {
@@ -52,8 +55,12 @@ export default function HomePage() {
       }
       setError('');
     } catch (err: any) {
-      if (err.code === 'auth/invalid-credential') {
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
         setError('E-posta adresi veya şifre hatalı!');
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        setPendingCredential(err.credential);
+        setError(`Bu e-posta başka bir yöntemle kayıtlı. Lütfen şifrenizle giriş yapın, hesabınız otomatik bağlanacaktır.`);
+        setAuthMode('login');
       } else {
         setError('Giriş yapılırken bir hata oluştu.');
       }
@@ -64,7 +71,9 @@ export default function HomePage() {
 
   const handleStaySignedInChoice = async (stay: boolean) => {
     await setPersistence(auth, stay ? browserLocalPersistence : browserSessionPersistence);
+    setIsDecisionPending(false);
     setIsLoggedIn(true);
+    setNeedsVerification(!pendingUser?.emailVerified);
     setShowStaySignedIn(false);
     setPendingUser(null);
   };
@@ -89,16 +98,17 @@ export default function HomePage() {
 
   const handleSocialAuth = async (provider: any, providerName: string) => {
     setIsLoading(true);
+    setIsDecisionPending(true);
     setError('');
     try {
       const result = await signInWithPopup(auth, provider);
-      // Giriş başarılı, şimdi Microsoft gibi soralım
       setPendingUser(result.user);
       setShowStaySignedIn(true);
     } catch (err: any) {
+      setIsDecisionPending(false);
       if (err.code === 'auth/account-exists-with-different-credential') {
         setPendingCredential(err.credential);
-        setError(`Bu e-posta (${err.customData?.email}) başka bir yöntemle kayıtlı. Lütfen şifrenizle giriş yapın, hesabınız otomatik birleştirilecektir.`);
+        setError(`Bu e-posta başka bir yöntemle kayıtlı. Lütfen şifrenizle giriş yapın, hesabınız otomatik bağlanacaktır.`);
         setAuthMode('login');
       } else if (err.code === 'auth/popup-closed-by-user') {
         setError('Giriş penceresi kapatıldı.');
