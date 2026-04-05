@@ -31,14 +31,14 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <style>{`
-          body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 0; line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+          body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 0; line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; } /* Tailwind ile çakışmaması için */
           header { background-color: #0078d7; color: white; padding: 40px 20px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: relative; }
           .header-name { margin: 0; font-size: 2.8em; font-weight: 900; }
           .header-sub { font-size: 1.2em; opacity: 0.9; margin-top: 10px; }
           .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; flex: 1; }
           .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
-          .card { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; border-bottom: 5px solid #00979d; }
-          .card:hover { transform: translateY(-8px); border-bottom-color: #0078d7; }
+          .card { background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); padding: 30px; text-align: center; cursor: pointer; transition: 0.3s; border-bottom: 5px solid #00979d; } /* Tailwind ile çakışmaması için */
+          .card:hover { transform: translateY(-8px); border-bottom-color: #0078d7; } /* Tailwind ile çakışmaması için */
           .icon-box { font-size: 4em; margin-bottom: 15px; }
           .detail-view { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.15); position: relative; }
           .code-area { background-color: #282c34; color: #abb2bf; padding: 20px; border-radius: 8px; font-family: 'Consolas', monospace; overflow-x: auto; white-space: pre-wrap; margin-top: 15px; font-size: 0.9em; }
@@ -78,13 +78,13 @@ export default function RootLayout({
           .btn-login { width: 100%; background-color: #0078d7; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
           .btn-login:hover { background-color: #005a9e; }
           
-          .btn-social { width: 100%; background-color: white; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.3s ease; border: 1px solid #e0e0e0; font-size: 0.95em; }
-          .btn-social:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); background-color: #ffffff; }
-          .btn-social img { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); }
+          .btn-social { width: 100%; background-color: white; border: 1px solid #ddd; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+          .btn-social:hover { background-color: #f8f9fa; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .btn-social img { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1)); } /* Tailwind ile çakışmaması için */
           
           /* Marka Renkleri ve Hover Efektleri */
           .btn-google { border-color: #ea4335; color: #ea4335; }
-          .btn-google:hover { background-color: #fff8f7; border-color: #ea4335; }
+          .btn-google:hover { background-color: #fce8e6; }
           .btn-github { border-color: #24292e; color: #24292e; }
           .btn-github:hover { background-color: #f6f8fa; }
           .btn-x { border-color: #000000; color: #000000; }
