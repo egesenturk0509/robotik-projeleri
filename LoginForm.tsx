@@ -4,13 +4,13 @@ interface LoginFormProps {
   onLogin: (email: string, password: string, rememberMe: boolean) => void;
   onGoogleLogin: () => void;
   onGithubLogin: () => void;
-  onAppleLogin: () => void;
-  onMicrosoftLogin: () => void;
+  onTwitterLogin: () => void;
   onSwitchToSignup: () => void;
   error: React.ReactNode;
+  isLoading: boolean; // Yeni prop
 }
 
-export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onAppleLogin, onMicrosoftLogin, onSwitchToSignup, error }: LoginFormProps) {
+export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwitterLogin, onSwitchToSignup, error, isLoading }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +18,9 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onApp
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin(email, password, rememberMe);
+    if (!isLoading) { // Çoklu gönderimi engelle
+      onLogin(email, password, rememberMe);
+    }
   };
 
   return (
@@ -32,6 +34,7 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onApp
             className="login-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading} // Yüklenirken inputu devre dışı bırak
           />
           <div className="password-wrapper">
             <input 
@@ -40,11 +43,13 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onApp
               className="login-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isLoading} // Yüklenirken inputu devre dışı bırak
             />
             <button 
               type="button" 
               className="toggle-password" 
               onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading} // Yüklenirken düğmeyi devre dışı bırak
             >
               {showPassword ? "👁️‍🗨️" : "👁️"}
             </button>
@@ -55,37 +60,31 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onApp
               id="rememberMe"
               checked={rememberMe}
               onChange={(e) => setRememberMe(e.target.checked)}
+              disabled={isLoading} // Yüklenirken checkbox'ı devre dışı bırak
             />
             <label htmlFor="rememberMe">Beni Hatırla</label>
           </div>
-          <button type="submit" className="btn-login">Giriş Yap</button>
+          <button type="submit" className="btn-login" disabled={isLoading}> {/* Yüklenirken düğmeyi devre dışı bırak */}
+            {isLoading ? "Giriş Yapılıyor..." : "Giriş Yap"} {/* Metni değiştir */}
+          </button>
           
           <div className="google-login-separator">
             <span>veya</span>
           </div>
           
-          <button type="button" className="btn-google" onClick={onGoogleLogin}>
+          <button type="button" className="btn-google" onClick={onGoogleLogin} disabled={isLoading}>
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
             Google ile Giriş Yap
           </button>
 
-          <button type="button" className="btn-social btn-github" onClick={onGithubLogin}>
+          <button type="button" className="btn-social btn-github" onClick={onGithubLogin} disabled={isLoading}>
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/github.svg" alt="GitHub" width="18" height="18" />
             GitHub ile Giriş Yap
           </button>
-
-          <button type="button" className="btn-social btn-apple" onClick={onAppleLogin}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/apple.svg" alt="Apple" width="18" height="18" />
-            Apple ile Giriş Yap
+          <button type="button" className="btn-social btn-x" onClick={onTwitterLogin} disabled={isLoading}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="X" width="18" height="18" />
+            X ile Giriş Yap
           </button>
-
-          <button type="button" className="btn-social btn-microsoft" onClick={onMicrosoftLogin}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/microsoft.svg" alt="Microsoft" width="18" height="18" />
-            Microsoft ile Giriş Yap
-          </button>
-
-
-
         </form>
         <a className="forgot-password" onClick={() => alert('Yöneticiyle iletişime geçin.')}>
           Şifremi Unuttum

@@ -86,10 +86,8 @@ export default function RootLayout({
           .btn-google:hover { background-color: #fce8e6; }
           .btn-github { border-color: #333; color: #333; }
           .btn-github:hover { background-color: #f5f5f5; }
-          .btn-apple { border-color: #000; color: #000; }
-          .btn-apple:hover { background-color: #f5f5f5; }
-          .btn-microsoft { border-color: #2f2f2f; color: #2f2f2f; } /* Microsoft'un resmi rengi yok, koyu gri kullanıldı */
-          .btn-microsoft:hover { background-color: #f5f5f5; }
+          .btn-x { border-color: #000; color: #000; }
+          .btn-x:hover { background-color: #f5f5f5; }
 
           .google-login-separator { margin: 15px 0; position: relative; text-align: center; }
           .google-login-separator::before { content: ""; position: absolute; top: 50%; left: 0; width: 40%; border-top: 1px solid #ddd; }

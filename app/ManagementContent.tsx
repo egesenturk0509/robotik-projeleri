@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { PROJECTS } from '../projects'; 
 import { Project } from '../project';   
 import Header from './Header';
@@ -8,6 +8,8 @@ import ProjectDetail from './ProjectDetail';
 import AccountSettings from './AccountSettings';
 import SerialMonitor from './SerialMonitor';
 import SerialPlotter from './SerialPlotter';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface ManagementContentProps {
   onLogout: () => void;
@@ -21,9 +23,21 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
   const [isSending, setIsSending] = useState(false);
   
   const [userData, setUserData] = useState({
-    email: 'egesenturk0509@gmail.com',
-    displayName: 'Ege Şentürk'
+    email: '',
+    displayName: ''
   });
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserData({
+          email: user.email || '',
+          displayName: user.displayName || 'Kullanıcı'
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleProjectSelect = (project: Project) => {
     setSelectedProject(project);

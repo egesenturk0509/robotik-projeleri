@@ -4,20 +4,20 @@ interface SignupFormProps {
   onSignup: (email: string, password: string, displayName: string) => void;
   onGoogleLogin: () => void;
   onGithubLogin: () => void;
-  onAppleLogin: () => void;
-  onMicrosoftLogin: () => void;
+  onTwitterLogin: () => void;
   onSwitchToLogin: () => void;
   error: React.ReactNode;
+  isLoading: boolean; // Yeni prop
 }
 
 export default function SignupForm({ 
   onSignup, 
   onGoogleLogin, 
   onGithubLogin, 
-  onAppleLogin, 
-  onMicrosoftLogin, 
+  onTwitterLogin,
   onSwitchToLogin, 
-  error 
+  error,
+  isLoading // Yeni prop
 }: SignupFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,7 +26,9 @@ export default function SignupForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSignup(email, password, displayName);
+    if (!isLoading) { // Çoklu gönderimi engelle
+      onSignup(email, password, displayName);
+    }
   };
 
   return (
@@ -41,6 +43,7 @@ export default function SignupForm({
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             required
+            disabled={isLoading} // Yüklenirken inputu devre dışı bırak
           />
           <input 
             type="email" 
@@ -49,6 +52,7 @@ export default function SignupForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            disabled={isLoading} // Yüklenirken inputu devre dışı bırak
           />
           <div className="password-wrapper">
             <input 
@@ -58,39 +62,38 @@ export default function SignupForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading} // Yüklenirken inputu devre dışı bırak
             />
             <button 
               type="button" 
               className="toggle-password" 
               onClick={() => setShowPassword(!showPassword)}
+              disabled={isLoading} // Yüklenirken düğmeyi devre dışı bırak
             >
               {showPassword ? "👁️‍🗨️" : "👁️"}
             </button>
           </div>
-          <button type="submit" className="btn-login">Kayıt Ol</button>
+          <button type="submit" className="btn-login" disabled={isLoading}> {/* Yüklenirken düğmeyi devre dışı bırak */}
+            {isLoading ? "Kayıt Olunuyor..." : "Kayıt Ol"} {/* Metni değiştir */}
+          </button>
 
           <div className="google-login-separator">
             <span>veya</span>
           </div>
 
-          <button type="button" className="btn-social btn-google" onClick={onGoogleLogin}>
+          <button type="button" className="btn-social btn-google" onClick={onGoogleLogin} disabled={isLoading}>
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="18" height="18" />
             Google ile Kayıt Ol
           </button>
 
-          <button type="button" className="btn-social btn-github" onClick={onGithubLogin}>
+          <button type="button" className="btn-social btn-github" onClick={onGithubLogin} disabled={isLoading}>
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/github.svg" alt="GitHub" width="18" height="18" />
             GitHub ile Kayıt Ol
           </button>
 
-          <button type="button" className="btn-social btn-apple" onClick={onAppleLogin}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/apple.svg" alt="Apple" width="18" height="18" />
-            Apple ile Kayıt Ol
-          </button>
-
-          <button type="button" className="btn-social btn-microsoft" onClick={onMicrosoftLogin}>
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/microsoft.svg" alt="Microsoft" width="18" height="18" />
-            Microsoft ile Kayıt Ol
+          <button type="button" className="btn-social btn-x" onClick={onTwitterLogin} disabled={isLoading}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="X" width="18" height="18" />
+            X ile Kayıt Ol
           </button>
         </form>
         <a className="forgot-password" onClick={onSwitchToLogin}>

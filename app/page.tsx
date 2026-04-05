@@ -1,54 +1,72 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SignupForm from '../SignupForm';
-import { auth, googleProvider, githubProvider, appleProvider, microsoftProvider } from './firebase';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, getAdditionalUserInfo } from 'firebase/auth';
+import SignupForm from '../../SignupForm';
+import { auth, googleProvider, githubProvider, twitterProvider } from '../firebase';
+import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, getAdditionalUserInfo, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 export default function SignupPage() {
   const [error, setError] = useState<React.ReactNode>('');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSignup = async (email: string, password: string, displayName: string) => {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) router.push('/'); // Zaten giriş yapmışsa ana sayfaya (dashboard) yolla
+    });
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleEmailSignup = async (email: string, password: string, displayName: string) => {
+    setIsLoading(true);
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName });
-      router.push('/dashboard');
+      setError('');
+      router.push('/');
     } catch (err: any) {
-      setError(err.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kullanımda.' : 'Kayıt hatası.');
+      console.error("Kayıt hatası:", err);
+      setError(err.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kullanımda.' : 'Kayıt sırasında bir hata oluştu.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSocialSignup = async (provider: any, providerName: string) => {
+    setIsLoading(true);
     try {
+      await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, provider);
       const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
 
       if (!isNewUser) {
-        // İstediğin kural: Kayıt ekranında eski hesapla girilirse uyar
         setError(
           <span>
             Böyle bir hesap zaten var.{" "}
-            <a onClick={() => router.push('/login')} style={{color: '#0078d7', cursor:'pointer', fontWeight:'bold', textDecoration:'underline'}}>Giriş Yap</a>
+            <a onClick={() => router.push('/')} style={{color: '#0078d7', cursor:'pointer', fontWeight:'bold', textDecoration:'underline'}}>Giriş Yap</a>
           </span>
         );
       } else {
-        router.push('/dashboard');
+        router.push('/');
       }
     } catch (err: any) {
+      console.error(`${providerName} hatası:`, err);
       setError(`${providerName} ile kayıt yapılamadı.`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <SignupForm 
-      onSignup={handleSignup} 
+      onSignup={handleEmailSignup} 
       onGoogleLogin={() => handleSocialSignup(googleProvider, 'Google')}
       onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
-      onAppleLogin={() => handleSocialSignup(appleProvider, 'Apple')}
-      onMicrosoftLogin={() => handleSocialSignup(microsoftProvider, 'Microsoft')}
-      onSwitchToLogin={() => router.push('/login')} 
+      onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
+      onSwitchToLogin={() => router.push('/')} 
       error={error} 
+      isLoading={isLoading}
     />
   );
 }
