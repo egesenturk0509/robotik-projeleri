@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, GithubAuthProvider, TwitterAuthProvider, FacebookAuthProvider, OAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, GithubAuthProvider, TwitterAuthProvider, FacebookAuthProvider, OAuthProvider, EmailAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -19,3 +19,4 @@ export const facebookProvider = new FacebookAuthProvider();
 export const yahooProvider = new OAuthProvider('yahoo.com');
 export const appleProvider = new OAuthProvider('apple.com');
 export const microsoftProvider = new OAuthProvider('microsoft.com');
+export const emailProvider = new EmailAuthProvider();

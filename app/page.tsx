@@ -1,19 +1,32 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import SignupForm from '../SignupForm';
 import LoginForm from '../LoginForm';
+import SignupForm from '../SignupForm';
 import ManagementContent from './ManagementContent';
 import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './firebase';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence, browserSessionPersistence, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'firebase/auth';
+import { 
+  createUserWithEmailAndPassword, 
+  updateProfile, 
+  signInWithPopup, 
+  onAuthStateChanged, 
+  setPersistence, 
+  browserLocalPersistence, 
+  browserSessionPersistence,
+  signInWithEmailAndPassword,
+  signOut,
+  sendPasswordResetEmail,
+  linkWithCredential,
+  AuthCredential 
+} from 'firebase/auth';
 
 export default function HomePage() {
   const [error, setError] = useState<React.ReactNode>('');
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null: yükleniyor, false: giriş yok, true: giriş var
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null); // null: kontrol ediliyor
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingCredential, setPendingCredential] = useState<AuthCredential | null>(null);
 
   useEffect(() => {
-    // Uygulama açıldığında kayıtlı oturum olup olmadığını kontrol eder
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsLoggedIn(!!user);
     });
@@ -23,26 +36,18 @@ export default function HomePage() {
   const handleLogin = async (email: string, password: string, rememberMe: boolean) => {
     setIsLoading(true);
     try {
-      // Beni hatırla işaretliyse yerel hafızayı, değilse oturum bazlı hafızayı kullanır
       await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Eğer bekleyen bir sosyal medya bağlama işlemi varsa bağla
+      if (pendingCredential) {
+        await linkWithCredential(userCredential.user, pendingCredential);
+        setPendingCredential(null);
+        alert("Hesabınız başarıyla bağlandı!");
+      }
       setError('');
     } catch (err: any) {
-      console.error("Giriş hatası:", err);
       setError('E-posta adresi veya şifre hatalı!');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async (email: string) => {
-    setIsLoading(true);
-    try {
-      await sendPasswordResetEmail(auth, email);
-      alert('Şifre sıfırlama e-postası gönderildi! Lütfen gelen kutunuzu kontrol edin. 📧');
-      setError('');
-    } catch (err: any) {
-      setError('Şifre sıfırlama e-postası gönderilirken bir hata oluştu. E-posta adresinizi kontrol edin.');
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +61,7 @@ export default function HomePage() {
       await updateProfile(userCredential.user, { displayName });
       setError('');
     } catch (err: any) {
-      setError(err.code === 'auth/email-already-in-use' ? 'Bu e-posta adresi zaten kullanımda!' : 'Kayıt hatası oluştu.');
+      setError(err.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kullanımda.' : 'Kayıt sırasında bir hata oluştu.');
     } finally {
       setIsLoading(false);
     }
@@ -69,25 +74,35 @@ export default function HomePage() {
       await signInWithPopup(auth, provider);
       setError('');
     } catch (err: any) {
-      console.error(`${providerName} hatası:`, err);
-      let errorMessage = `${providerName} ile giriş yapılamadı.`;
-      if (err.code) {
-        switch (err.code) {
-          case 'auth/popup-closed-by-user':
-            errorMessage = 'Giriş penceresi kapatıldı.';
-            break;
-          case 'auth/account-exists-with-different-credential':
-            errorMessage = `Bu e-posta adresi farklı bir sağlayıcı ile zaten kayıtlı. Lütfen ${providerName} yerine diğer giriş yöntemini kullanın.`;
-            break;
-        }
+      if (err.code === 'auth/account-exists-with-different-credential') {
+        setPendingCredential(err.credential);
+        setError(`Bu e-posta zaten başka bir yöntemle kayıtlı. Lütfen şifrenizle giriş yapın, hesabınız otomatik olarak bağlanacaktır.`);
+        setAuthMode('login');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Giriş penceresi kapatıldı.');
+      } else {
+        setError(`${providerName} ile işlem yapılamadı.`);
       }
-      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoggedIn === null) return null; // İlk yüklemede boş dön
+  const handleForgotPassword = async (email: string) => {
+    if (!email) return setError("Lütfen e-posta adresinizi girin.");
+    setIsLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, email);
+      alert("Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.");
+      setError('');
+    } catch (err: any) {
+      setError("Sıfırlama e-postası gönderilemedi. Adresi kontrol edin.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoggedIn === null) return null; // Yüklenme anında boş sayfa göster
 
   if (isLoggedIn) {
     return <ManagementContent onLogout={() => signOut(auth)} />;
