@@ -5,12 +5,14 @@ interface LoginFormProps {
   onGoogleLogin: () => void;
   onGithubLogin: () => void;
   onTwitterLogin: () => void;
+  onFacebookLogin: () => void;
+  onYahooLogin: () => void;
   onSwitchToSignup: () => void;
   error: React.ReactNode;
   isLoading: boolean; // Yeni prop
 }
 
-export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwitterLogin, onSwitchToSignup, error, isLoading }: LoginFormProps) {
+export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwitterLogin, onFacebookLogin, onYahooLogin, onSwitchToSignup, error, isLoading }: LoginFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -84,6 +86,14 @@ export default function LoginForm({ onLogin, onGoogleLogin, onGithubLogin, onTwi
           <button type="button" className="btn-social btn-x" onClick={onTwitterLogin} disabled={isLoading}>
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="X" width="18" height="18" />
             X ile Giriş Yap
+          </button>
+          <button type="button" className="btn-social btn-facebook" onClick={onFacebookLogin} disabled={isLoading}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg" alt="Facebook" width="18" height="18" />
+            Facebook ile Giriş Yap
+          </button>
+          <button type="button" className="btn-social btn-yahoo" onClick={onYahooLogin} disabled={isLoading}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/yahoo.svg" alt="Yahoo" width="18" height="18" />
+            Yahoo ile Giriş Yap
           </button>
         </form>
         <a className="forgot-password" onClick={() => alert('Yöneticiyle iletişime geçin.')}>

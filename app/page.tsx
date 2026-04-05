@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SignupForm from '../../SignupForm';
-import { auth, googleProvider, githubProvider, twitterProvider } from '../firebase';
+import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, getAdditionalUserInfo, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
 
 export default function SignupPage() {
@@ -64,6 +64,8 @@ export default function SignupPage() {
       onGoogleLogin={() => handleSocialSignup(googleProvider, 'Google')}
       onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
       onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
+      onFacebookLogin={() => handleSocialSignup(facebookProvider, 'Facebook')}
+      onYahooLogin={() => handleSocialSignup(yahooProvider, 'Yahoo')}
       onSwitchToLogin={() => router.push('/')} 
       error={error} 
       isLoading={isLoading}

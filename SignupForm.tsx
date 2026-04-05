@@ -5,6 +5,8 @@ interface SignupFormProps {
   onGoogleLogin: () => void;
   onGithubLogin: () => void;
   onTwitterLogin: () => void;
+  onFacebookLogin: () => void;
+  onYahooLogin: () => void;
   onSwitchToLogin: () => void;
   error: React.ReactNode;
   isLoading: boolean; // Yeni prop
@@ -15,6 +17,8 @@ export default function SignupForm({
   onGoogleLogin, 
   onGithubLogin, 
   onTwitterLogin,
+  onFacebookLogin,
+  onYahooLogin,
   onSwitchToLogin, 
   error,
   isLoading // Yeni prop
@@ -94,6 +98,14 @@ export default function SignupForm({
           <button type="button" className="btn-social btn-x" onClick={onTwitterLogin} disabled={isLoading}>
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="X" width="18" height="18" />
             X ile Kayıt Ol
+          </button>
+          <button type="button" className="btn-social btn-facebook" onClick={onFacebookLogin} disabled={isLoading}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/facebook.svg" alt="Facebook" width="18" height="18" />
+            Facebook ile Kayıt Ol
+          </button>
+          <button type="button" className="btn-social btn-yahoo" onClick={onYahooLogin} disabled={isLoading}>
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/yahoo.svg" alt="Yahoo" width="18" height="18" />
+            Yahoo ile Kayıt Ol
           </button>
         </form>
         <a className="forgot-password" onClick={onSwitchToLogin}>
