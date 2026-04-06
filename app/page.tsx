@@ -8,14 +8,14 @@ import {
   createUserWithEmailAndPassword, 
   updateProfile, 
   signInWithPopup, 
-  getAdditionalUserInfo, 
   onAuthStateChanged, 
   setPersistence, 
   browserLocalPersistence, 
   browserSessionPersistence, 
   sendEmailVerification,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  RecaptchaVerifier
 } from 'firebase/auth';
 
 export default function SignupPage() {
@@ -31,6 +31,22 @@ if (user) router.push('/');
 });
 return () => unsubscribe();
 }, [router]);
+
+useEffect(() => {
+  // reCAPTCHA v2 kurulumu
+  if (typeof window !== 'undefined' && document.getElementById('recaptcha-container')) {
+    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      'size': 'normal',
+      'callback': () => setIsRecaptchaResolved(true),
+      'expired-callback': () => setIsRecaptchaResolved(false)
+    });
+    verifier.render();
+    return () => {
+      verifier.clear();
+    };
+  }
+}, [isLogin]); // Giriş/Kayıt ekranı değiştikçe reCAPTCHA'yı yenile
+
 const handleEmailSignup = async (email: string, password: string, displayName: string) => {
 setIsLoading(true);
 try {
@@ -72,19 +88,8 @@ const handleSocialSignup = async (provider: any, providerName: string) => {
 setIsLoading(true);
 try {
 await setPersistence(auth, browserLocalPersistence);
-const result = await signInWithPopup(auth, provider);
-const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
-if (!isNewUser && result.user.email) {
-setError(
-<span>
-Bu e-posta adresiyle zaten bir hesap mevcut. Lütfen{' '}
-<a onClick={() => router.push('/')} style={{color: '#0078d7', cursor:'pointer', fontWeight:'bold', textDecoration:'underline'}}>Giriş Yap</a>
-ın.
-</span>
-);
-} else {
+await signInWithPopup(auth, provider);
 router.push('/');
-}
 } catch (err: any) {
 let errorMessage = `${providerName} ile kayıt yapılamadı.`;
 if (err.code) {
@@ -118,6 +123,7 @@ if (isLogin) {
       onForgotPassword={handleForgotPassword}
       error={error}
       isLoading={isLoading}
+      isRecaptchaResolved={isRecaptchaResolved}
     />
   );
 }
