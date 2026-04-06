@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SignupForm from './SignupForm';
+import SignupForm from '../SignupForm';
 import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './firebase';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, getAdditionalUserInfo, onAuthStateChanged, setPersistence, browserLocalPersistence, sendEmailVerification } from 'firebase/auth';
 export default function SignupPage() {
