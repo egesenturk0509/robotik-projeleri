@@ -2,12 +2,29 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SignupForm from '../SignupForm';
+import LoginForm from '../LoginForm';
 import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './firebase';
-import { createUserWithEmailAndPassword, updateProfile, signInWithPopup, getAdditionalUserInfo, onAuthStateChanged, setPersistence, browserLocalPersistence, sendEmailVerification } from 'firebase/auth';
+import { 
+  createUserWithEmailAndPassword, 
+  updateProfile, 
+  signInWithPopup, 
+  getAdditionalUserInfo, 
+  onAuthStateChanged, 
+  setPersistence, 
+  browserLocalPersistence, 
+  browserSessionPersistence, 
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail
+} from 'firebase/auth';
+
 export default function SignupPage() {
 const [error, setError] = useState<React.ReactNode>('');
 const router = useRouter();
 const [isLoading, setIsLoading] = useState(false);
+const [isLogin, setIsLogin] = useState(true);
+const [isRecaptchaResolved, setIsRecaptchaResolved] = useState(false);
+
 useEffect(() => {
 const unsubscribe = onAuthStateChanged(auth, (user) => {
 if (user) router.push('/');
@@ -30,6 +47,27 @@ setError(err.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kullanımd
 setIsLoading(false);
 }
 };
+
+const handleEmailLogin = async (email: string, password: string, rememberMe: boolean) => {
+  setIsLoading(true);
+  try {
+    // Beni hatırla seçeneğine göre oturum kalıcılığını ayarla
+    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+    await signInWithEmailAndPassword(auth, email, password);
+    setError('');
+  } catch (err: any) {
+    setError('Giriş başarısız. Lütfen e-posta veya şifrenizi kontrol edin.');
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+const handleForgotPassword = (email: string) => {
+  sendPasswordResetEmail(auth, email)
+    .then(() => alert("Şifre sıfırlama bağlantısı e-postanıza gönderildi!"))
+    .catch(() => setError("Şifre sıfırlama e-postası gönderilemedi."));
+};
+
 const handleSocialSignup = async (provider: any, providerName: string) => {
 setIsLoading(true);
 try {
@@ -66,6 +104,24 @@ setError(errorMessage);
 setIsLoading(false);
 }
 };
+
+if (isLogin) {
+  return (
+    <LoginForm
+      onLogin={handleEmailLogin}
+      onGoogleLogin={() => handleSocialSignup(googleProvider, 'Google')}
+      onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
+      onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
+      onFacebookLogin={() => handleSocialSignup(facebookProvider, 'Facebook')}
+      onYahooLogin={() => handleSocialSignup(yahooProvider, 'Yahoo')}
+      onSwitchToSignup={() => setIsLogin(false)}
+      onForgotPassword={handleForgotPassword}
+      error={error}
+      isLoading={isLoading}
+    />
+  );
+}
+
 return (
 <SignupForm 
 onSignup={handleEmailSignup} 
@@ -74,9 +130,10 @@ onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
 onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
 onFacebookLogin={() => handleSocialSignup(facebookProvider, 'Facebook')}
 onYahooLogin={() => handleSocialSignup(yahooProvider, 'Yahoo')}
-onSwitchToLogin={() => router.push('/')} 
+onSwitchToLogin={() => setIsLogin(true)} 
 error={error} 
 isLoading={isLoading}
+isRecaptchaResolved={isRecaptchaResolved}
 />
 );
 }

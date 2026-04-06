@@ -10,6 +10,7 @@ interface SignupFormProps {
   onSwitchToLogin: () => void;
   error: React.ReactNode;
   isLoading: boolean; // Yeni prop
+  isRecaptchaResolved: boolean; // reCAPTCHA doğrulama durumu
 }
 
 export default function SignupForm({ 
@@ -21,7 +22,8 @@ export default function SignupForm({
   onYahooLogin,
   onSwitchToLogin, 
   error,
-  isLoading // Yeni prop
+  isLoading, // Yeni prop
+  isRecaptchaResolved // reCAPTCHA doğrulama durumu
 }: SignupFormProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +32,7 @@ export default function SignupForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isLoading) { // Çoklu gönderimi engelle
+    if (!isLoading && isRecaptchaResolved) { // Çoklu gönderimi ve reCAPTCHA olmadan gönderimi engelle
       onSignup(email, password, displayName);
     }
   };
@@ -83,7 +85,7 @@ export default function SignupForm({
             <div id="recaptcha-container"></div>
           </div>
 
-          <button type="submit" className="btn-login" disabled={isLoading}> {/* Yüklenirken düğmeyi devre dışı bırak */}
+          <button type="submit" className="btn-login" disabled={isLoading || !isRecaptchaResolved}> {/* Yüklenirken veya reCAPTCHA çözülmezken devre dışı bırak */}
             {isLoading ? "Kayıt Olunuyor..." : "Kayıt Ol"} {/* Metni değiştir */}
           </button>
 
@@ -104,6 +106,11 @@ export default function SignupForm({
           <button type="button" className="btn-social btn-x" onClick={onTwitterLogin} disabled={isLoading}>
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg" alt="X" width="18" height="18" />
             X ile Kayıt Ol
+          </button>
+          
+          <button type="button" className="btn-social btn-yahoo" onClick={onYahooLogin} disabled={isLoading}>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/ed/Yahoo%21_logo.svg" alt="Yahoo" width="18" height="18" />
+            Yahoo ile Kayıt Ol
           </button>
         </form>
         <a className="forgot-password" onClick={onSwitchToLogin}>
