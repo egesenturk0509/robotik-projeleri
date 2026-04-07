@@ -3,143 +3,130 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import SignupForm from '../SignupForm';
 import LoginForm from '../LoginForm';
-import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './firebase';
+import ManagementContent from './ManagementContent';
+
+// DİKKAT: Eğer hata devam ederse './lib/firebase' kısmını '../lib/firebase' olarak değiştir!
+import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './lib/firebase';
+
 import { 
-  createUserWithEmailAndPassword, 
-  updateProfile, 
-  signInWithPopup, 
   onAuthStateChanged, 
   setPersistence, 
   browserLocalPersistence, 
   browserSessionPersistence, 
-  sendEmailVerification,
+  signInWithPopup,
   signInWithEmailAndPassword,
-  sendPasswordResetEmail,
+  createUserWithEmailAndPassword,
+  updateProfile,
+  sendEmailVerification,
   RecaptchaVerifier
 } from 'firebase/auth';
 
 export default function SignupPage() {
-const [error, setError] = useState<React.ReactNode>('');
-const router = useRouter();
-const [isLoading, setIsLoading] = useState(false);
-const [isLogin, setIsLogin] = useState(true);
-const [isRecaptchaResolved, setIsRecaptchaResolved] = useState(false);
+  const [error, setError] = useState<React.ReactNode>('');
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [isRecaptchaResolved, setIsRecaptchaResolved] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
-useEffect(() => {
-const unsubscribe = onAuthStateChanged(auth, (user) => {
-if (user) router.push('/');
-});
-return () => unsubscribe();
-}, [router]);
-
-useEffect(() => {
-  // reCAPTCHA v2 kurulumu
-  if (typeof window !== 'undefined' && document.getElementById('recaptcha-container')) {
-    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'normal',
-      'callback': () => setIsRecaptchaResolved(true),
-      'expired-callback': () => setIsRecaptchaResolved(false)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsLoggedIn(!!user);
     });
-    verifier.render();
-    return () => {
-      verifier.clear();
-    };
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const container = document.getElementById('recaptcha-container');
+    if (typeof window !== 'undefined' && container && !container.hasChildNodes()) {
+      try {
+        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'normal',
+          'callback': () => setIsRecaptchaResolved(true),
+          'expired-callback': () => setIsRecaptchaResolved(false)
+        });
+        verifier.render();
+      } catch (err) {
+        console.error("ReCAPTCHA yüklenemedi:", err);
+      }
+    }
+  }, [isLogin]);
+
+  const handleSocialSignup = async (provider: any, providerName: string) => {
+    setIsLoading(true);
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      const result = await signInWithPopup(auth, provider);
+      if (result.user) {
+        setIsLoggedIn(true);
+        router.refresh();
+      }
+    } catch (err: any) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        setError(`${providerName} hatası oluştu.`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmailLogin = async (email: string, password: string, rememberMe: boolean) => {
+    setIsLoading(true);
+    try {
+      await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (err: any) {
+      setError('Giriş bilgileri hatalı.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (email: string) => {
+    if (!email) return alert("E-posta gerekli.");
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, type: 'reset' }),
+      });
+      if (res.ok) alert("Şifre sıfırlama maili Brevo ile gönderildi! 🚀");
+      else throw new Error();
+    } catch (err) {
+      setError("Mail gönderilemedi.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoggedIn === null) return <div className="loading-screen">Yükleniyor... 🤖</div>;
+
+  if (isLoggedIn) {
+    return <ManagementContent onLogout={() => auth.signOut()} />;
   }
-}, [isLogin]); // Giriş/Kayıt ekranı değiştikçe reCAPTCHA'yı yenile
 
-const handleEmailSignup = async (email: string, password: string, displayName: string) => {
-setIsLoading(true);
-try {
-await setPersistence(auth, browserLocalPersistence);
-const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-await updateProfile(userCredential.user, { displayName });
-await sendEmailVerification(userCredential.user);
-setError('');
-alert("Hesabınız oluşturuldu ve doğrulama e-postası gönderildi. Lütfen e-postanızı onaylayın. 📧");
-router.push('/');
-} catch (err: any) {
-setError(err.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kullanımda.' : 'Kayıt sırasında bir hata oluştu.');
-} finally {
-setIsLoading(false);
-}
-};
-
-const handleEmailLogin = async (email: string, password: string, rememberMe: boolean) => {
-  setIsLoading(true);
-  try {
-    // Beni hatırla seçeneğine göre oturum kalıcılığını ayarla
-    await setPersistence(auth, rememberMe ? browserLocalPersistence : browserSessionPersistence);
-    await signInWithEmailAndPassword(auth, email, password);
-    setError('');
-  } catch (err: any) {
-    setError('Giriş başarısız. Lütfen e-posta veya şifrenizi kontrol edin.');
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-const handleForgotPassword = (email: string) => {
-  sendPasswordResetEmail(auth, email)
-    .then(() => alert("Şifre sıfırlama bağlantısı e-postanıza gönderildi!"))
-    .catch(() => setError("Şifre sıfırlama e-postası gönderilemedi."));
-};
-
-const handleSocialSignup = async (provider: any, providerName: string) => {
-setIsLoading(true);
-try {
-await setPersistence(auth, browserLocalPersistence);
-await signInWithPopup(auth, provider);
-router.push('/');
-} catch (err: any) {
-let errorMessage = `${providerName} ile kayıt yapılamadı.`;
-if (err.code) {
-switch (err.code) {
-case 'auth/popup-closed-by-user':
-errorMessage = 'Kayıt penceresi kapatıldı.';
-break;
-case 'auth/account-exists-with-different-credential':
-errorMessage = `Bu e-posta adresi farklı bir sağlayıcı ile zaten kayıtlı.`;
-break;
-default:
-errorMessage = `${providerName} hatası: ${err.message}`;
-}
-}
-setError(errorMessage);
-} finally {
-setIsLoading(false);
-}
-};
-
-if (isLogin) {
   return (
-    <LoginForm
-      onLogin={handleEmailLogin}
-      onGoogleLogin={() => handleSocialSignup(googleProvider, 'Google')}
-      onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
-      onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
-      onFacebookLogin={() => handleSocialSignup(facebookProvider, 'Facebook')}
-      onYahooLogin={() => handleSocialSignup(yahooProvider, 'Yahoo')}
-      onSwitchToSignup={() => setIsLogin(false)}
-      onForgotPassword={handleForgotPassword}
-      error={error}
-      isLoading={isLoading}
-      isRecaptchaResolved={isRecaptchaResolved}
-    />
+    <div className="auth-container">
+      {isLogin ? (
+        <LoginForm
+          onLogin={handleEmailLogin}
+          onGoogleLogin={() => handleSocialSignup(googleProvider, 'Google')}
+          onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
+          onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
+          onFacebookLogin={() => handleSocialSignup(facebookProvider, 'Facebook')}
+          onYahooLogin={() => handleSocialSignup(yahooProvider, 'Yahoo')}
+          onSwitchToSignup={() => setIsLogin(false)}
+          onForgotPassword={handleForgotPassword}
+          error={error}
+          isLoading={isLoading}
+          isRecaptchaResolved={isRecaptchaResolved}
+        />
+      ) : (
+        /* SignupForm buraya gelecek */
+        <div>Kayıt Formu</div>
+      )}
+      <div id="recaptcha-container"></div>
+    </div>
   );
-}
-
-return (
-<SignupForm 
-onSignup={handleEmailSignup} 
-onGoogleLogin={() => handleSocialSignup(googleProvider, 'Google')}
-onGithubLogin={() => handleSocialSignup(githubProvider, 'GitHub')}
-onTwitterLogin={() => handleSocialSignup(twitterProvider, 'X')}
-onFacebookLogin={() => handleSocialSignup(facebookProvider, 'Facebook')}
-onYahooLogin={() => handleSocialSignup(yahooProvider, 'Yahoo')}
-onSwitchToLogin={() => setIsLogin(true)} 
-error={error} 
-isLoading={isLoading}
-isRecaptchaResolved={isRecaptchaResolved}
-/>
-);
 }
