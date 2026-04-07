@@ -85,7 +85,12 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
       const res = await fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput, projectName: selectedProject.title }),
+        body: JSON.stringify({ 
+          email: emailInput, 
+          projectName: selectedProject.title,
+          projectDescription: selectedProject.description,
+          imageUrl: selectedProject.imageUrl
+        }),
       });
       if (res.ok) {
         alert("Proje detayları başarıyla uçuruldu! 🕊️");
