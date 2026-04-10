@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { email, projectName, projectDescription, imageUrl } = await req.json();
+    const { email, projectName, projectDescription, imageUrl, type } = await req.json();
+
+    // Eğer şifre sıfırlama ise projectName gibi alanlar olmayabilir, güvenli bir varsayılan ekleyelim
+    const subjectName = projectName || (type === 'reset' ? 'Şifre Sıfırlama' : 'Bilgilendirme');
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -26,10 +29,10 @@ export async function POST(req: Request) {
       <body>
         <div class="wrapper">
           <table class="main" align="center">
-            <tr><td class="header"><h1>${projectName}</h1></td></tr>
+            <tr><td class="header"><h1>${subjectName}</h1></td></tr>
             <tr><td class="content">
-              <p class="description">${projectDescription || ''}</p>
-              ${imageUrl ? `<div class="image-container"><img src="${imageUrl}" class="project-img" alt="${projectName}" /></div>` : ''}
+              <p class="description">${projectDescription || (type === 'reset' ? 'Şifre sıfırlama talebiniz alınmıştır.' : '')}</p>
+              ${imageUrl ? `<div class="image-container"><img src="${imageUrl}" class="project-img" alt="${subjectName}" /></div>` : ''}
               <div style="text-align: center;"><a href="https://robotik-projelerim.vercel.app" class="btn">Portalı Ziyaret Et</a></div>
             </td></tr>
             <tr><td class="footer">Bu mail Robotik Mühendisliği Portalı üzerinden gönderilmiştir.</td></tr>
@@ -49,7 +52,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         sender: { name: 'Robotik Portalı', email: 'ege@robotik.com' },
         to: [{ email }],
-        subject: `Proje Detayı: ${projectName}`,
+        subject: type === 'reset' ? 'Şifre Sıfırlama Talebi' : `Proje Detayı: ${subjectName}`,
         htmlContent,
       }),
     });
