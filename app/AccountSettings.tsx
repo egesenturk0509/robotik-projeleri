@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface AccountSettingsProps {
   onBack: () => void;
@@ -14,6 +14,12 @@ export default function AccountSettings({ onBack, onLogout, userData, onSave }: 
   const [email, setEmail] = useState(userData.email);
   const [displayName, setDisplayName] = useState(userData.displayName);
   const [password, setPassword] = useState('');
+
+  // Sağlayıcıdan (Google vb.) gelen veriler güncellendiğinde formu doldur
+  useEffect(() => {
+    setEmail(userData.email);
+    setDisplayName(userData.displayName);
+  }, [userData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

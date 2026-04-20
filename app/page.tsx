@@ -6,8 +6,7 @@ import LoginForm from '../LoginForm';
 import ManagementContent from './ManagementContent';
 
 // DİKKAT: Eğer hata devam ederse './lib/firebase' kısmını '../lib/firebase' olarak değiştir!
-import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './lib/firebase';
-
+import { auth, googleProvider, githubProvider, twitterProvider, facebookProvider, yahooProvider } from './firebase';
 import { 
   onAuthStateChanged, 
   setPersistence, 
@@ -28,13 +27,15 @@ export default function SignupPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [isRecaptchaResolved, setIsRecaptchaResolved] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+  const [pendingUser, setPendingUser] = useState<any>(null); // Onay bekleyen kullanıcı
+  const [providerLogo, setProviderLogo] = useState(''); // Girilen sağlayıcı logosu
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsLoggedIn(!!user);
+      if (!pendingUser) setIsLoggedIn(!!user);
     });
     return () => unsubscribe();
-  }, []);
+  }, [pendingUser]);
 
   useEffect(() => {
     const container = document.getElementById('recaptcha-container');
@@ -55,11 +56,18 @@ export default function SignupPage() {
   const handleSocialSignup = async (provider: any, providerName: string) => {
     setIsLoading(true);
     try {
-      await setPersistence(auth, browserLocalPersistence);
       const result = await signInWithPopup(auth, provider);
       if (result.user) {
-        setIsLoggedIn(true);
-        router.refresh();
+        // Logo belirle
+        let logo = "";
+        if (providerName === 'Google') logo = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg";
+        else if (providerName === 'GitHub') logo = "https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/github.svg";
+        else if (providerName === 'X') logo = "https://upload.wikimedia.org/wikipedia/commons/5/53/X_logo_2023_original.svg";
+        else if (providerName === 'Facebook') logo = "https://upload.wikimedia.org/wikipedia/commons/0/05/Facebook_Logo_%282019%29.png";
+        else if (providerName === 'Yahoo') logo = "https://upload.wikimedia.org/wikipedia/commons/e/ed/Yahoo%21_logo.svg";
+        
+        setProviderLogo(logo);
+        setPendingUser(result.user);
       }
     } catch (err: any) {
       if (err.code !== 'auth/popup-closed-by-user') {
@@ -68,6 +76,13 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const confirmPersistence = async (stay: boolean) => {
+    await setPersistence(auth, stay ? browserLocalPersistence : browserSessionPersistence);
+    setIsLoggedIn(true);
+    setPendingUser(null);
+    router.refresh();
   };
 
   const handleEmailLogin = async (email: string, password: string, rememberMe: boolean) => {
@@ -86,7 +101,7 @@ export default function SignupPage() {
     if (!email) return alert("E-posta gerekli.");
     setIsLoading(true);
     try {
-      const res = await fetch('/api/send-email', {
+      const res = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, type: 'reset' }),
@@ -104,6 +119,24 @@ export default function SignupPage() {
 
   if (isLoggedIn) {
     return <ManagementContent onLogout={() => auth.signOut()} />;
+  }
+
+  // Oturum Açık Kalsın mı Ekranı (login.live.com stili)
+  if (pendingUser) {
+    return (
+      <div className="login-container">
+        <div className="login-card" style={{ textAlign: 'center' }}>
+          {providerLogo && <img src={providerLogo} alt="Provider" width="48" height="48" style={{ marginBottom: '20px' }} />}
+          <h2 style={{ fontSize: '24px', marginBottom: '10px' }}>Oturumunuz açık kalsın mı?</h2>
+          <p className="header-sub">Bunu, hesabınıza her seferinde girmek zorunda kalmamanız için yapıyoruz.</p>
+          
+          <div className="form-flex-row" style={{ marginTop: '30px', gap: '10px' }}>
+            <button className="btn-save" style={{ flex: 1 }} onClick={() => confirmPersistence(true)}>Evet</button>
+            <button className="btn-logout" style={{ flex: 1, backgroundColor: '#ccc' }} onClick={() => confirmPersistence(false)}>Hayır</button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

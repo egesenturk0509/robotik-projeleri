@@ -9,7 +9,7 @@ import AccountSettings from './AccountSettings';
 import SerialMonitor from './SerialMonitor';
 import SerialPlotter from './SerialPlotter';
 import { auth } from './firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, updateProfile, updateEmail, updatePassword } from 'firebase/auth';
 
 interface ManagementContentProps {
   onLogout: () => void;
@@ -23,8 +23,8 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
   const [isSending, setIsSending] = useState(false);
   
   const [userData, setUserData] = useState({
-    email: '',
-    displayName: ''
+    email: auth.currentUser?.email || '',
+    displayName: auth.currentUser?.displayName || 'Kullanıcı'
   });
 
   useEffect(() => {
@@ -61,11 +61,31 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
     setView('plotter');
   };
 
-  const handleSaveAccount = (newData: { email: string; password?: string; displayName: string }) => {
-    setUserData({ 
-      email: newData.email, 
-      displayName: newData.displayName 
-    });
+  const handleSaveAccount = async (newData: { email: string; password?: string; displayName: string }) => {
+    const user = auth.currentUser;
+    if (!user) return;
+
+    try {
+      // Firebase Profilini Güncelle (İsim)
+      if (newData.displayName !== user.displayName) {
+        await updateProfile(user, { displayName: newData.displayName });
+      }
+      
+      // E-posta Güncelle (Provider izin veriyorsa)
+      if (newData.email && newData.email !== user.email) {
+        await updateEmail(user, newData.email);
+      }
+
+      // Şifre Güncelle
+      if (newData.password) {
+        await updatePassword(user, newData.password);
+      }
+
+      setUserData({ email: newData.email, displayName: newData.displayName });
+    } catch (error: any) {
+      console.error("Güncelleme hatası:", error);
+      if (error.code === 'auth/requires-recent-login') alert("Güvenlik nedeniyle e-posta veya şifre değişikliği için yeniden giriş yapmalısınız.");
+    }
   };
 
   const downloadFile = (filename: string, content: string) => {
@@ -82,7 +102,7 @@ export default function ManagementContent({ onLogout }: ManagementContentProps) 
     if (!emailInput || !selectedProject) return;
     setIsSending(true);
     try {
-      const res = await fetch('/api/send-email', {
+      const res = await fetch('/api', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

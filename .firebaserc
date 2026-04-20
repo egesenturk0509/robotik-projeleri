@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "projeler-fb400"
-  }
+    "default": "projelerim-a73a4",
+    "firebase use projelerim-a73a4 --alias default": "projelerim-a73a4"
+  },
+  "targets": {},
+  "etags": {}
 }
